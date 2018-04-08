@@ -63,13 +63,48 @@ array_filling:
 # $s0 stores the starting address of the point_array
 sortarray:
 # TODO below: 
-
-	
-
-			
-						
-									
-															
+	addi $t0, $zero, 0 # $t0 = i = 0
+	addi $s1, $s1, -2 # n = n-2
+	iLoop:
+		bge $t0, $s1, sortarrayEnd # end loop if i < n-2
+		addi $t1, $zero, 0 # $t1 = j = 0
+		jLoop:
+			sub $t3, $s1, $t0 # $t3 = n-2-i
+			bge $t1, $t3, iLoopEnd # end loop if j < n-2-i
+			# check cond
+			sll $t3, $t1, 2 # t3 = j * 4
+			addi $t4, $t3, 4 # $t4 = (j+1)*4
+			addi $t5, $t3, 8 # $t5 = (j+2)*4
+			addi $t6, $t3, 12 # $t6 = (j+3)*4
+			lw $t2, point_array($t3) # $t2 = a[j]
+			lw $t7, point_array($t4) # $t7 = a[j+1]
+			lw $t8, point_array($t5) # $t8 = a[j+2]
+			lw $t9, point_array($t6) # $t9 = a[j+3]
+			slt $t9, $t9, $t7 # $t9 = a[j+3] < a[j+1]
+			seq $t7, $t8, $t2 # $t7 = a[j+2] == a[j]
+			and $t9, $t9, $t7
+			slt $t7, $t8, $t2 # $t7 = a[j+2] < a[j]
+			or $t7, $t7, $t9
+			beqz $t7, jLoopEnd #skip swapping if cond false
+			# swap
+			lw $t7, point_array($t3) # $t7 = temp = a[j]
+			lw $t8, point_array($t5) # $t8 = a[j+2]
+			sw $t8, point_array($t3) # store a[j] = a[j+2]
+			sw $t7, point_array($t5) # store a[j+2] = temp
+			lw $t7, point_array($t4) # $t7 = temp = a[j+1]
+			lw $t8, point_array($t6) # $t8 = a[j+3]
+			sw $t8, point_array($t4) # store a[j+1] = a[j+3]
+			sw $t7, point_array($t6) # store a[j+3] = temp
+			jLoopEnd:
+				addi $t1, $t1, 2 # j = j+2
+				j jLoop
+		iLoopEnd:
+			addi $t0, $t0, 2 # i = i+2
+			j iLoop
+	sortarrayEnd:
+		addi $s1, $s1, 2 # revert n = n-2
+		jr $ra
+												
 # TODO above
 
 # print original array
