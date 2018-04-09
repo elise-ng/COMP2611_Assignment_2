@@ -123,8 +123,60 @@ endprogram:
 # return C(row col) in $v0					
 pascal:
 # TODO below
-
+	# stop case: col = 0
+	beqz $a1, returnOne
 	
-		
-				
+	# stop case: row = col
+	beq $a0, $a1, returnOne
+
+	# stash t0, t1
+	addi $sp, $sp, -4
+	sw $t0, 0($sp)
+	addi $sp, $sp, -4
+	sw $t1, 0($sp)
+	
+	# divide
+	addi $sp, $sp, -4
+	sw $a0, 0($sp)
+	addi $sp, $sp, -4
+	sw $a1, 0($sp)
+	addi $sp, $sp, -4
+	sw $ra, 0($sp)
+	addi $a0, $a0, -1 # a0 = row - 1
+	addi $a1, $a1, -1 # a1 = col - 1
+	jal pascal
+	addi $t0, $v0, 0 # save t0 = C(row-1, col-1)
+	lw $ra, 0($sp)
+	addi $sp, $sp, 4
+	lw $a1, 0($sp)
+	addi $sp, $sp, 4
+	lw $a0, 0($sp)
+	addi $sp, $sp, 4
+	
+	addi $sp, $sp, -4
+	sw $t0, 0($sp)
+	addi $sp, $sp, -4
+	sw $ra, 0($sp)
+	addi $a0, $a0, -1 # a0 = row - 1; a1 = col, no change
+	jal pascal
+	addi $t1, $v0, 0 # save t1 = C(row-1, col)
+	lw $ra, 0($sp)
+	addi $sp, $sp, 4
+	lw $t0, 0($sp)
+	addi $sp, $sp, 4
+	
+	# conquer
+	add $v0, $t0, $t1
+	
+	# revert t0,t1
+	lw $t1, 0($sp)
+	addi $sp, $sp, 4
+	lw $t0, 0($sp)
+	addi $sp, $sp, 4
+	
+	jr $ra
+	
+	returnOne:
+		addi $v0, $zero, 1
+		jr $ra
 # TODO above
