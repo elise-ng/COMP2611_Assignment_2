@@ -87,9 +87,24 @@ FindNthPrime:
 # if $a0 is prime, then return $v0=1, otherwise, return $v0=0
 is_prime:
 # TODO below
-	
-	
-	
+	addi $t0, $zero, 2 # $t0 = i = 2
+	div $t1, $a0, 2
+	addi $t1, $t1, 1 # $t1 = num / 2 + 1
+	iLoop:
+		sle $t2, $t0, $t1 # $t2 = i < num / 2 + 1
+		beqz $t2, isPrimeEnd # jump if false
+		div $a0, $t0
+		mfhi $t2 # $t2 = num % i
+		beqz $t2, isNotPrime
+	iLoopEnd:
+		addi $t0, $t0, 1 # i = i + 1
+		j iLoop
+	isNotPrime:
+		addi $v0, $zero, 0 # return false
+		j $ra
+	isPrimeEnd:
+		addi $v0, $zero, 1 # return true
+		j $ra
 # TODO above
 
 
