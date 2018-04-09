@@ -93,9 +93,14 @@ is_prime:
 	iLoop:
 		sle $t2, $t0, $t1 # $t2 = i < num / 2 + 1
 		beqz $t2, isPrimeEnd # jump if false
-		div $a0, $t0
-		mfhi $t2 # $t2 = num % i
-		beqz $t2, isNotPrime
+		addi $a1, $a0, 0 # set $a1 = $a0 = num
+		addi $a2, $t0, 0 # set $s2 = $t0 = i
+		addi $sp, $sp, -4
+		sw $ra, 0($sp) # push $ra to stash
+		jal Remainder
+		lw $ra, 0($sp)
+		addi $sp, $sp, 4 # pop $ra from stash
+		beqz $v1, isNotPrime # remainder = 0, return false
 	iLoopEnd:
 		addi $t0, $t0, 1 # i = i + 1
 		j iLoop
