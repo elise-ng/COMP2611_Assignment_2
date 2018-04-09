@@ -73,12 +73,47 @@ endmain:
 # What FindNthPrime should do: calculate n-th prime, $a0=n, return n-th prime in $v0	
 FindNthPrime:
 # TODO below 
-
-	
-
-			
-						
-												
+	bnez $s1, search # skip init s1 if set already
+	# init s1 = num of current found primes
+	addi $s1, $zero, 1 # "2"
+	sle $t0, $a0, $s1
+	bnez $t0, found # skip search if found already
+	search:
+		addi $t0, $s1, -1
+		sll $t0, $t0, 2
+		lw $t0, primes($t0)
+		addi $t0, $t0, 1 # t0 = j = primes[cnt-1]+1
+		jLoop:
+			slt $t1, $s1, $a0 # t1 = cnt < num
+			beqz $t1, found # end loop if false
+			addi $sp, $sp, -4
+			sw $a0, 0($sp)
+			addi $sp, $sp, -4
+			sw $t0, 0($sp)
+			addi $sp, $sp, -4
+			sw $ra, 0($sp)
+			addi $a0, $t0, 0
+			jal is_prime
+			lw $ra, 0($sp)
+			addi $sp, $sp, 4
+			lw $t0, 0($sp)
+			addi $sp, $sp ,4
+			lw $a0, 0($sp)
+			addi $sp, $sp ,4
+			beqz $v0, jLoopEnd # skip storing j if not prime
+			# store j in prime array
+			sll $t1, $s1, 2 # t1 = cnt * 4
+			sw $t0, primes($t1)
+			addi $s1, $s1, 1 # cnt += 1
+		jLoopEnd:
+			addi $t0, $t0, 1 # j += 1
+			j jLoop
+	found:
+		addi $t0, $a0, -1
+		sll $t0, $t0, 2 # $t0 = (n-1) * 4
+		lw $v0, primes($t0) # $t0 = nth prime
+		addi $s1, $zero, 0 # reset s1 to 0
+		jr $ra
 # TODO above
 
 
@@ -106,10 +141,10 @@ is_prime:
 		j iLoop
 	isNotPrime:
 		addi $v0, $zero, 0 # return false
-		j $ra
+		jr $ra
 	isPrimeEnd:
 		addi $v0, $zero, 1 # return true
-		j $ra
+		jr $ra
 # TODO above
 
 
